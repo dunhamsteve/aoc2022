@@ -25,5 +25,5 @@ def main(args: List String) : IO Unit := do
   IO.println <| repr <| part1i nums
   IO.println <| repr <| (sorted.data.take 3).foldl (fun a b => a + b) 0
 
-#eval main [ "eg.txt" ]
-#eval main [ "input.txt" ]
+#eval main [ "day1/eg.txt" ]
+#eval main [ "day1/input.txt" ]

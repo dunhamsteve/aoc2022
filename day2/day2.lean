@@ -21,5 +21,5 @@ def main(args: List String) : IO Unit := do
   let p2 := data.foldl (fun a b => a + part2 b) 0
   println! "{fname} {p1} {p2}"
 
-#eval main [ "eg.txt" ]
-#eval main [ "input.txt" ]
+#eval main [ "day2/eg.txt" ]
+#eval main [ "day2/input.txt" ]

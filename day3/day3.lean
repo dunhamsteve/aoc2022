@@ -17,7 +17,7 @@ partial
 def zeros (n : Nat) :=
   if n == 0 then 0
   else if n % 2 == 1 then 0
-  else 1 + zeros (Nat.shiftRight n 1)
+  else 1 + zeros (n >>> 1)
 
 def step1 (s : String) :=
   let m := s.length / 2;
@@ -40,7 +40,7 @@ def main(args : List String) : IO Unit := do
   let two := part2 0 lines
   println! "{fname} {one} {two}"
   
-#eval main [ "eg.txt" ]
-#eval main [ "input.txt" ]
+#eval main [ "day3/eg.txt" ]
+#eval main [ "day3/input.txt" ]
 
 

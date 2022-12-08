@@ -41,5 +41,5 @@ def main (args: List String) : IO Unit := do
 
   println! "{fname} {count} {count2}"
 
-#eval main [ "eg.txt" ]
-#eval main [ "input.txt" ]
+#eval main [ "day4/eg.txt" ]
+#eval main [ "day4/input.txt" ]
