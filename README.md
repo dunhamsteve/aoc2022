@@ -16,6 +16,8 @@ Day 5 - I did this in rust initially. Lots of weird issues dealing with borrow c
 - Implicits don't work like Idris - `{f : Forest}` was not found.
 - I had to take a different approach for part 2, thought about going back and refining part1.
 
+- In the Rust version, I got to learn about writing iterators with a directional tree iterator.
+
 **Day 9**
 
 - Went fairly quickly.  Still need to go back and do the Rust version. (Too busy with other things.)
@@ -35,7 +37,8 @@ Day 5 - I did this in rust initially. Lots of weird issues dealing with borrow c
 - Minus on editor tooling:
     - Showing the types is really annoying, makes the formatting of code look awful,
       I think I'd prefer on hover.
-
+- I keep forgeting snake_case
+- Writing > instead of >> can lead to some hard to follow syntax errors.
 
 ## Lean Notes
 
