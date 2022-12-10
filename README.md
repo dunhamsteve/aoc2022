@@ -5,31 +5,42 @@ This year I'm trying AoC in Tust to kick the tires a litte.  But I may backfill 
 I went through day 3 in rust, then backported / redid each in lean4.
 
 
-## Lean
-
 Day3 - I had one function that it wouldn't accept as total. And bit operations are kinda painful. I probably should define some operators to make it prettier.
 
 
 Day 5 - I did this in rust initially. Lots of weird issues dealing with borrow checker. Also I accidently did part2 first.
 
-Day 8
+**Day 8**
 
-- List is not a monad.
-- Implicits don't work like Idris {f : Forest} was not found.
+- List is not a monad in Lean.
+- Implicits don't work like Idris - `{f : Forest}` was not found.
 - I had to take a different approach for part 2, thought about going back and refining part1.
 
-Day 9
+**Day 9**
 
 - Went fairly quickly.  Still need to go back and do the Rust version. (Too busy with other things.)
 
-Day 10
+**Day 10**
 
-- Ooh, I may get to write a VM again.
-
-
+- I ended up just injecting instructions rather than dealing with the two cycle instructions.
 
 
-## General Lean Notes
+## Rust Notes
 
+- Editor tooling is nice:
+    - Auto insert of imports
+    - Good descriptions of what to do when I do something stupid
+    - The run thing is nice, but Lean kinda has me spoiled on that front.
+    - Add missing match cases
+- Minus on editor tooling:
+    - Showing the types is really annoying, makes the formatting of code look awful,
+      I think I'd prefer on hover.
+
+
+## Lean Notes
+
+- Hard to find functions (e.g. how do I turn a List Char -> String, took a while to figure out)
 - The List is not a monad thing threw me off a little.
 - Not sure where the docs are for libraries, I've been searching the source.
+- I really like the results panel in vscode tooling, it updates as I type code. 
+  (Even better than jupyter)

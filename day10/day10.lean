@@ -2,7 +2,6 @@ import Lean
 
 inductive Instr where
 | noop : Instr
-| skip : Instr
 | addx : Int -> Instr
 deriving Repr
 
@@ -29,13 +28,12 @@ fun st instr =>
   let st := {st with cycle := st.cycle + 1 }
   match instr with
     | .noop   => st
-    | .skip   => st
     | .addx x => { st with regx := st.regx + x }
 
 def pad : List Instr -> List Instr
 | [] => []
 | (.noop :: is) => .noop :: pad is
-| (i :: is) => .skip :: i :: pad is
+| (i :: is) => .noop :: i :: pad is
 
 def step (ins : Instr) :  M Char := do
   let st <- get
