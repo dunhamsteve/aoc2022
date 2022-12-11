@@ -17,6 +17,7 @@ Day 5 - I did this in rust initially. Lots of weird issues dealing with borrow c
 - I had to take a different approach for part 2, thought about going back and refining part1.
 
 - In the Rust version, I got to learn about writing iterators with a directional tree iterator.
+- Went back and reworked lean version to work similar to Rust version.
 
 **Day 9**
 
@@ -47,3 +48,4 @@ Day 5 - I did this in rust initially. Lots of weird issues dealing with borrow c
 - Not sure where the docs are for libraries, I've been searching the source.
 - I really like the results panel in vscode tooling, it updates as I type code. 
   (Even better than jupyter)
+- I don't get my magic Idris `[]` and `::`.
