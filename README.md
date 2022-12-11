@@ -49,3 +49,4 @@ Day 5 - I did this in rust initially. Lots of weird issues dealing with borrow c
 - I really like the results panel in vscode tooling, it updates as I type code. 
   (Even better than jupyter)
 - I don't get my magic Idris `[]` and `::`.
+- Lean produces executables, but they're like 50 MB for a tiny program (day8) vs 572k
