@@ -27,6 +27,19 @@ Day 5 - I did this in rust initially. Lots of weird issues dealing with borrow c
 
 - I ended up just injecting instructions rather than dealing with the two cycle instructions.
 
+**Day 11**
+
+All the decisions appeared to be modular, so I went with `lcm` of every discriminator for part 2. Threaded through a function to refine the value rather than turn the state into a structure, because I was feeling lazy.
+
+In some of these puzzles, I've been on the fence whether to use a State monad, or just thread through the value and `foldl`. For both Lean and Rust, I really should handle checking of indices at compile time, but it'd take more time to figure that out.  I feel like I'm cheating when I do `[x]!` in lean...
+
+**Day 12**
+
+At some point I'd like to get a better feel for how the index checking works in lean. (See below, I figured out some of it via Zulip search.)
+
+**Day 13**
+
+This went smoothly. I used Lean's parsec for this one.  We'll see what I do on the rust side when I get to it.
 
 ## Rust Notes
 
@@ -40,6 +53,7 @@ Day 5 - I did this in rust initially. Lots of weird issues dealing with borrow c
       I think I'd prefer on hover.
 - I keep forgeting snake_case
 - Writing > instead of >> can lead to some hard to follow syntax errors.
+- When I create a new project (cargo init), it doesn't seem to be picked up in an existin vscode window without reloading.
 
 ## Lean Notes
 
@@ -50,3 +64,27 @@ Day 5 - I did this in rust initially. Lots of weird issues dealing with borrow c
   (Even better than jupyter)
 - I don't get my magic Idris `[]` and `::`.
 - Lean produces executables, but they're like 50 MB for a tiny program (day8) vs 572k
+
+I had a question on this:
+```lean
+  for r in [0:data.size] do
+    -- lean doesn't figure out that r : Fin data.size
+    match data[r]!.getIdx? needle with
+    ...
+```
+
+It turns out that you can pull in a proof that `r ∈ [0:data.size]` with a colon:
+```lean
+for h : r in [0:data.size] do
+  have : r < data.size := h.2
+  match data[r]!.getIdx? needle with
+  ...
+```
+(It suffices to just bring h.2 into scope by assigning it to a name.)
+
+```lean
+  -- I'd like to use Idris | notation here, is there an equiv?
+  let start := (grid.find? 83).get!
+```
+
+I managed to figure out day13 that the notation is there, but it doesn't have a match in the `|` branch, so my blind attempt to use it didn't work.
