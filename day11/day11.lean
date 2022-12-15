@@ -18,14 +18,14 @@ def parseMonkey (content : String) := Id.run do
   let lines := content.splitOn "\n"
   let mut m : Monkey := default
   for line in lines do
-    let parts := line.splitOn " "
+    let parts := line.trim.splitOn " "
     match parts with
     | [ "Monkey", _] => pure ()
-    | [ "", "" , "Operation:", "new", "=", a, b, c] => m := { m with op := (b == "*", a.toNat?, c.toNat?)}
-    | ( "" :: "" :: "Starting" :: "items:" :: rest) => m := { m with items := (rest.map String.toNat!).reverse }
-    | [ "", "", "Test:" , "divisible", "by", n] => m := { m with test := n.toNat! }
-    | [ "", "", "", "", "If", "true:", "throw", "to", "monkey", n] => m := { m with trueDest := n.toNat! }
-    | [ "","", "", "", "If", "false:", "throw", "to", "monkey", n] => m := { m with falseDest := n.toNat! }
+    | [ "Operation:", "new", "=", a, b, c] => m := { m with op := (b == "*", a.toNat?, c.toNat?)}
+    | ( "Starting" :: "items:" :: rest) => m := { m with items := (rest.map String.toNat!).reverse }
+    | [ "Test:" , "divisible", "by", n] => m := { m with test := n.toNat! }
+    | [ "If", "true:", "throw", "to", "monkey", n] => m := { m with trueDest := n.toNat! }
+    | [ "If", "false:", "throw", "to", "monkey", n] => m := { m with falseDest := n.toNat! }
     | [""] => ()
     | _ => dbg_trace "Parse Error: {parts}"; unreachable!
   m

@@ -33,6 +33,8 @@ All the decisions appeared to be modular, so I went with `lcm` of every discrimi
 
 In some of these puzzles, I've been on the fence whether to use a State monad, or just thread through the value and `foldl`. For both Lean and Rust, I really should handle checking of indices at compile time, but it'd take more time to figure that out.  I feel like I'm cheating when I do `[x]!` in lean...
 
+In Rust I had to implement `gcd` and `lcm`. I had issues with not being able to pass in a closure, like a did for lean (for part1 vs part2 value reduction). And finally I had an issue where mutability screwed me up. I resent the monkey count for part2, but forgot that there was other state in there that needed to be reset. I did realize that trimming will make my sketchy parser look better, so I went back and tweaked the lean code to do the same.
+
 **Day 12**
 
 At some point I'd like to get a better feel for how the index checking works in lean. (See below, I figured out some of it via Zulip search.)
