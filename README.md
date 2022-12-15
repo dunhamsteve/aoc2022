@@ -43,6 +43,15 @@ At some point I'd like to get a better feel for how the index checking works in 
 
 This went smoothly. I used Lean's parsec for this one.  We'll see what I do on the rust side when I get to it.
 
+**Day 14**
+
+Day 14 went fairly smoothly. I ended up just using a hashmap for the grid so I wouldn't have to figure out sizing.  It was fast enough.
+
+**Day 15**
+
+I got this working well enough, but I'd like to come up with a strategy to skip rows, so part 2 doesn't take 30s.
+
+
 ## Rust Notes
 
 - Editor tooling is nice:
