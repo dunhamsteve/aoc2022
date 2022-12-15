@@ -37,7 +37,9 @@ In Rust I had to implement `gcd` and `lcm`. I had issues with not being able to 
 
 **Day 12**
 
-At some point I'd like to get a better feel for how the index checking works in lean. (See below, I figured out some of it via Zulip search.)
+I used Array (Array Nat) for the heights. At some point I'd like to get a better feel for how the index checking works in lean, so it could carry some proofs.
+
+For the Rust version, I mutate the grid to mark visited cells rather than keep a HashMap.
 
 **Day 13**
 
