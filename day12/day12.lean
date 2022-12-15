@@ -14,10 +14,10 @@ abbrev Point := (Nat × Nat)
 
 def Grid.find? [BEq α] (needle : α) (grid : Grid α) : Option Point :=
   let rec loop : List (Array α) -> Nat -> Option Point
-  | [], _ => .none
+  | [], _ => none
   | (a :: as), r => match a.getIdx? needle with
-      | .none => loop as (r + 1)
-      | .some c => .some (r,c)
+      | none => loop as (r + 1)
+      | some c => some (r,c)
   loop grid.data.toList 0
 
 def Grid.get! [Inhabited α] (grid : Grid α) : (pt : Point) -> α
@@ -42,9 +42,7 @@ def readGrid (content : String) (f : Char -> α) : Grid α :=
   { width, height, data }
  
 abbrev Item := (Nat × Point)
--- If I `let` this inside step below, then suddenly x < h : Prop rather 
--- than x < h : Bool
--- no clue why.
+
 def elev : Nat -> Nat
       | 83 => 97
       | 69 => 122
@@ -79,9 +77,8 @@ def main (argv : List String) : IO Unit := do
   println! "{fname}"
   let content <- IO.FS.readFile fname
   let grid := readGrid content (Char.toNat)
-  -- I'd like to use Idris | notation here, is there an equiv?
-  let start := (grid.find? 83).get!
-  let last := (grid.find? 69).get!
+  let .some start := (grid.find? 83) | println! "Start not found"
+  let .some last  := (grid.find? 69) | println! "End not found"
   println! "{fname} start {start} end {last}"
   
   let part1 := step grid start true 69
