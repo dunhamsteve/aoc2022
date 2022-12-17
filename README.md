@@ -53,6 +53,11 @@ Day 14 went fairly smoothly. I ended up just using a hashmap for the grid so I w
 
 I got this working well enough, but I'd like to come up with a strategy to skip rows, so part 2 doesn't take 30s.
 
+**Day 16**
+
+The night of, I got a part 1 solution in lean, but the eg.txt was off by one. I reworked it to prepare for part 2, fixing eg.txt and breaking input.txt.  Two things needed to happen, continue when we hit an end, until the "estimate" is below our best score. And fix a bug in estimate that was deprioritizing a local valve (after I separated move / open)
+
+Oof. So the 1651 vs 1650 thing, which I regressed, was having to keep the open and step separate. I didn't get code that did both.  I barely got part2 working.  It's taking 3 min 22 seconds to run, after I compile it. I think I need a better estimation function, and maybe I can manage the size that state grows better. 
 
 ## Rust Notes
 
