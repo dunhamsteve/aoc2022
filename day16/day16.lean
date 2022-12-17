@@ -1,12 +1,6 @@
 import Lean
 open Lean (HashMap RBTree RBMap)
 
--- probably need to skip empty ones to make the graph better
--- otherwise we start having a lot of extra branching..
--- or just distance worked in better
-
--- sensor / beacon points
-
 structure Node where
   name : String
   rate : Nat
@@ -25,36 +19,28 @@ def parseLine (line : String) : Node :=
   let out := (parts.drop 9).map λ s => s.takeWhile Char.isAlpha
   {name,rate,out}
 
--- Potential for a state
--- assume adjacency, take in order, stop when time runs out.
--- e.g. I have 5 minutes
--- move, on, move, on, move
--- n-2*biggest, n-4*next biggest
+-- Need this for an Ord on State.
+def compareList [Ord α] : (List α) -> (List α) -> Ordering
+| [], [] => .eq
+| (a::as), (b ::bs) => match compare a b with
+    | .eq => compareList as bs
+    | x => x
+| [], _ => .lt
+| _, _ => .gt
 
--- at state x
--- score is Z
--- avail is A B C
--- remaining time is x
+instance [Ord α] : Ord (List α) where
+  compare a b := compareList a b
 
--- I need an ordering for these nodes, 
 structure State where
-  path : List String
-  time : Nat
-  score : Nat
   est : Nat -- total estimated score
-  -- Maybe keep path
-deriving Repr
-
-def State.cmp (a : State) (b : State) : Ordering :=
-  match compare a.est b.est with
-  | .eq => compare (String.join a.path) (String.join b.path)
-  | x => x
+  score : Nat
+  time : Nat
+  closed : List String
+  loc : String
+deriving Repr, Ord
 
 -- our priority queue
-abbrev Queue := RBTree State State.cmp
-
-
-
+abbrev Queue := RBTree State compare
 
 abbrev NodeMap := HashMap String Node
 
@@ -62,56 +48,77 @@ structure Data where
   nodes : List Node
   nodeMap : NodeMap
 
-
-def estimate (data : Data) (st : State) (name : String): State :=
-  let node := data.nodeMap.find! name
-  let path := name :: st.path
-  let rate := if st.path.contains name then 0 else node.rate
-  let time := if rate > 0 then st.time - 2 else st.time - 1
-  let score := time * rate + st.score
+def estimate (data : Data) (st : State) : State :=
+  -- trying to get a upper bound for remaining score, that is as tight as possible
+  -- add best score for opening valves in time remaining
+  -- we'll assume we want to close the local valve and then the others in order
+  -- of size (assuming each is just one jump away)
   let rec loop : (List Node) -> Nat -> Nat
   | [], _ => 0
-  | (n :: ns), time => 
-    if path.contains n.name then loop ns time
-    else n.rate * (time - 2) + loop ns (time - 2)
-  let est := score + loop data.nodes time
-  { path, score, time, est }
-
-partial
-def process (data : Data) (queue : Queue) :=
-  match queue.max with
-  | .none => 0
-  | .some st =>
-    -- dbg_trace "Process state {repr st}"
-    let q := queue.erase st
-    if st.time == 0 then st.score
-    else
-      let n := data.nodeMap.find! st.path.head!
-      let q := n.out.foldl (λ q name => RBTree.insert q (estimate data st name)) q
-      process data q
-    
+  | (n :: ns), time =>
+    if time < 2 then 0
+    else if st.closed.contains n.name && n.name != st.loc then
+      n.rate * (time - 2) + loop ns (time - 2)
+    else loop ns time
   
+  let est := if st.closed.contains st.loc 
+    then 
+      let n := data.nodeMap.find! st.loc
+      st.score + n.rate * (st.time - 1) + loop data.nodes (st.time - 1)
+    else st.score + loop data.nodes st.time
+
+  {st with est }
+
+-- make this work with the changes, then give each agent 
+-- separate times and only advance one at a time.
+
+def openValve (data : Data) (st : State) : State :=
+  let n := data.nodeMap.find! st.loc
+  let closed := st.closed.erase st.loc
+  let time := st.time - 1
+  let score := st.score + time * n.rate
+  estimate data { st with closed, time, score }
+
+def moveTo (data : Data) (st : State) (loc : String) : State :=
+  estimate data { st with loc, time := st.time - 1}
+  
+partial
+def process (data : Data) (queue : Queue) (best : Nat) :=
+  -- when we hit an end, we pass along the best choice until our
+  -- estimates are lower than our best
+  match queue.max with
+   -- this shouldn't happen because we cut below if we've nothing to add
+  | .none => dbg_trace "empty"; best
+  | .some st =>
+      let q := queue.erase st;
+      if st.est < best then dbg_trace (repr (st.est, best));best
+      else if st.closed.isEmpty || st.time < 1 
+        then process data q (max best st.score)
+      else 
+        let n := data.nodeMap.find! st.loc
+        let tmp := n.out.map λ name => (moveTo data st name)
+        let cand := tmp.filter (λ c => State.est c > st.score)
+        let cand := if st.closed.contains st.loc then
+          openValve data st :: cand
+          else cand
+        if cand.isEmpty
+          then process data q (max best st.score)
+          else
+            let q := cand.foldl (λ q c => RBTree.insert q c) q
+            process data q (max best st.score)
+
 def main (argv : List String) : IO Unit := do
   let fname := argv[0]!
   let content <- IO.FS.readFile fname
   let nodes  := ((content.trim.splitOn "\n").map parseLine).toArray.qsort (λ n m => n.rate > m.rate)
   let nodeMap := nodes.foldl (λ m n => m.insert n.name n) .empty
   let data : Data := { nodeMap, nodes := nodes.toList }
-  IO.println (repr nodes)
+  let closed := (nodes.filter (λn=>n.rate > 0)).toList.map λ n => n.name
+  println! closed
+  let start : State := { loc := "AA", closed, time := 30, score := 0, est := 0 }
+  let result := process data (RBTree.insert .empty start) 0
+  println! "{fname} part1 {result}"
 
-  let start : State := { path := ["AA"], time := 30, score := 0, est := 0 }
-  let result := process data (RBTree.insert .empty start)
-  println! "part1 {result}"
-  
-
-  -- oof thought I might have to impl SortedMap, which is a big lift
-  -- so we need to find the best solution.  We can measure what we have
-  -- and the best remaining score.
-
-  
-
-
--- this is getting the wrong answer (one short) for the first, but not the second?
 #eval main ["day16/eg.txt"]
 #eval main ["day16/input.txt"]
 
