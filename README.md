@@ -51,6 +51,10 @@ On the Rust side, I wrote a quick little recursive parser. I thought the compari
 
 Day 14 went fairly smoothly. I ended up just using a hashmap for the grid so I wouldn't have to figure out sizing.  It was fast enough.
 
+Coming back for the Rust version, I see that I went with a proper parser in lean rather than just splitting. (And Parsec seems to be very basic, no manysep, etc.) I'll do the splitting thing in Rust, but I should see if what kind of parsing tools they have sometime.
+
+For fun, the rust version uses a vector of bool _and_ it uses the same grid for both parts, continuing the drops. It turns out just running part2 rules and looking at the final resting space of a grain is sufficient for both parts.
+
 **Day 15**
 
 I got this working well enough, but I'd like to come up with a strategy to skip rows, so part 2 doesn't take 30s.
@@ -111,7 +115,7 @@ It turns out that you can pull in a proof that `r ∈ [0:data.size]` with a colo
 ```lean
 for h : r in [0:data.size] do
   have : r < data.size := h.2
-  match data[r]!.getIdx? needle with
+  match data[r].getIdx? needle with
   ...
 ```
 (It suffices to just bring h.2 into scope by assigning it to a name.)
