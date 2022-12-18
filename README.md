@@ -83,6 +83,8 @@ avoid having to calculate and pass it around.
 - Writing > instead of >> can lead to some hard to follow syntax errors.
 - When I create a new project (cargo init), it doesn't seem to be picked up in an existin vscode window without reloading.
 - oh nice, I renamed `st` to `self`, and it rewrote the parameters correctly.
+- BUG F2 rename doesn't get inside strings
+- disabled annoying inllays
 
 ## Lean Notes
 
