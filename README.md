@@ -45,6 +45,8 @@ For the Rust version, I mutate the grid to mark visited cells rather than keep a
 
 This went smoothly. I used Lean's parsec for this one.  We'll see what I do on the rust side when I get to it.
 
+On the Rust side, I wrote a quick little recursive parser. I thought the comparison would be easier with cons lists, but it made everything else messier. I got to learn about Box and realize most of my stuff to date was on stack.
+
 **Day 14**
 
 Day 14 went fairly smoothly. I ended up just using a hashmap for the grid so I wouldn't have to figure out sizing.  It was fast enough.
