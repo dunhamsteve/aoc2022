@@ -63,6 +63,12 @@ Oof. So the 1651 vs 1650 thing, which I regressed, was having to keep the open a
 
 Second part took me a little while. I settled on the race loop detection thing, but had a lot of debugging before I figured out that I wasn't taking the padding off the top when calculating the height. I also kept wedging the lean process. There isn't a nice way to kill it in the editor. 
 
+**Day 18**
+
+This one was quite easy.  I "cheated" a little and hardwired the max size of the space to
+avoid having to calculate and pass it around.
+
+
 ## Rust Notes
 
 - Editor tooling is nice:
@@ -76,6 +82,7 @@ Second part took me a little while. I settled on the race loop detection thing, 
 - I keep forgeting snake_case
 - Writing > instead of >> can lead to some hard to follow syntax errors.
 - When I create a new project (cargo init), it doesn't seem to be picked up in an existin vscode window without reloading.
+- oh nice, I renamed `st` to `self`, and it rewrote the parameters correctly.
 
 ## Lean Notes
 
@@ -86,6 +93,7 @@ Second part took me a little while. I settled on the race loop detection thing, 
   (Even better than jupyter)
 - I don't get my magic Idris `[]` and `::`.
 - Lean produces executables, but they're like 50 MB for a tiny program (day8) vs 572k
+- BUG - If I try to complete IO.F, I get IO.IO.FS
 
 I had a question on this:
 ```lean
