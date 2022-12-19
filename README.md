@@ -59,6 +59,8 @@ For fun, the rust version uses a vector of bool _and_ it uses the same grid for 
 
 I got this working well enough, but I'd like to come up with a strategy to skip rows, so part 2 doesn't take 30s.
 
+Rust was about 15s here, but I copied the bit where `union` builds new objects. I think I could do it in place in Rust. And maybe I could switch to a Vec in lean to get more speedup.  The recursion seems clearer when using `List`, but I'm curious if I can get lean to update the data in place that way.
+
 **Day 16**
 
 The night of, I got a part 1 solution in lean, but the eg.txt was off by one. I reworked it to prepare for part 2, fixing eg.txt and breaking input.txt.  Two things needed to happen, continue when we hit an end, until the "estimate" is below our best score. And fix a bug in estimate that was deprioritizing a local valve (after I separated move / open)
@@ -91,6 +93,7 @@ avoid having to calculate and pass it around.
 - oh nice, I renamed `st` to `self`, and it rewrote the parameters correctly.
 - BUG F2 rename doesn't get inside strings
 - disabled annoying inllays
+- It keeps whining about my camelCase names.
 
 ## Lean Notes
 
@@ -102,6 +105,8 @@ avoid having to calculate and pass it around.
 - I don't get my magic Idris `[]` and `::`.
 - Lean produces executables, but they're like 50 MB for a tiny program (day8) vs 572k
 - BUG - If I try to complete IO.F, I get IO.IO.FS
+- Like Idris, it is hard to google.  Searching for Idris2 helps, so I've been trying "lean4".
+- How do I define something like `notation "‖ " a " ‖" => Int.abs a` that doesn't assume it's nesting when it hits the second deliminator.
 
 I had a question on this:
 ```lean

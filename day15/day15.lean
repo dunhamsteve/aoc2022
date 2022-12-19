@@ -40,27 +40,16 @@ def intersect : List Range -> Range -> List Range
 def check (sensors : List Sensor) (row : Int)  :=
   let rec loop : List Sensor -> List Range -> List Range
   | [], rs => rs
-  | ((a,b) :: ss), rs => 
+  | ((a,b) :: ss), rs =>
     let d := dist a b
     let rest := d -  (a.2 - row).abs
     if rest >= 0
-      then 
-        -- dbg_trace ("add",(a.1-rest,a.1+rest),a,b,dist a b)
+      then
         loop ss (union rs (a.1 - rest, a.1 + rest))
-      else 
-        -- dbg_trace ("skip",a,b,dist a b)
+      else
         loop ss rs
   let rs := loop sensors []
   rs
-
-def exclude (size : Int) (ranges : List Range) (s : Sensor) :=
-  let d := dist s.1 s.2
-  let a := (s.1.2 - size).abs 
-  let b := (s.1.2 - 0).abs
-  let extra := d - max a b
-  if extra >= 0
-    then union ranges (s.1.2 - extra, s.1.2 + extra)
-    else ranges
 
 def main (argv : List String) : IO Unit := do
   let fname := argv[0]!
@@ -68,23 +57,19 @@ def main (argv : List String) : IO Unit := do
   let size := argv[2]!.toNat!
   let content <- IO.FS.readFile fname
   let sensors := ((content.split (· == '\n')).filter (· != "")).map parseLine
-  
+
   let ranges := check sensors row
   let covered : Int := (ranges.map (λ x => x.2 - x.1 + 1)).foldl (· + · ) 0
   let beacons := (sensors.filter (λ x => x.2.2 == row)).map (λ x => x.2)
   let part1 := (covered - beacons.eraseDups.length)
   println! "{fname} part1 {part1}"
-  
-  -- This is empty, we may need a better skip heuristic
-  let excl := sensors.foldl (exclude size) []
-  println! "excl {excl}"
-  
+
   for row in [0:size] do
     let x := check sensors row
     let foo := intersect x (0,size)
     if foo.length != 1 then
       let part2 := ((foo.head!).2+1) * 4000000 + row
-      println! "{fname} part2 {part2}"  
+      println! "{fname} part2 {part2}"
       break
 
 #eval main ["day15/eg.txt", "10", "20"]
