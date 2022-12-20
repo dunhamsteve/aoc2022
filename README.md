@@ -76,6 +76,11 @@ Second part took me a little while. I settled on the race loop detection thing, 
 This one was quite easy.  I "cheated" a little and hardwired the max size of the space to
 avoid having to calculate and pass it around.
 
+**Day 19**
+
+Day 19 took me a while.  I decided to write a heap instead of doing RBTree, hoping I could just use a LT without having a full compare on the State. (I want a priority queue, but RBTree only lets me have one of each value.)  It turns out it was subtly broken. I patched it into day16 and started getting wrong answers.
+
+It took quite a bit of fine-tuning on the estimation function, and I needed a <= instead of < for cutting (oops). The second part was quite easy given the first part.
 
 ## Rust Notes
 
