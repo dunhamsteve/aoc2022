@@ -1,6 +1,6 @@
 SRCS := $(wildcard */day*.lean)
 OBJS = $(SRCS:.lean=.c)
-EXES = $(OBJS:.c=)
+EXES = $(OBJS:.c=.out)
 
 
 %.c: %.lean
@@ -12,3 +12,6 @@ EXES = $(OBJS:.c=)
 all: $(EXES)
 	echo $(SRCS)
 	echo $(SRCS:lean=c)
+
+clean:
+	rm $(EXES)

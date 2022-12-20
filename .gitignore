@@ -1,3 +1,6 @@
 target
 /build
 /lake-packages/*
+*.out
+*.bak
+*.c
