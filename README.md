@@ -82,6 +82,10 @@ Day 19 took me a while.  I decided to write a heap instead of doing RBTree, hopi
 
 It took quite a bit of fine-tuning on the estimation function, and I needed a <= instead of < for cutting (oops). The second part was quite easy given the first part.
 
+**Day 20**
+
+Day 20 was a linked list one. This can be a pain in a language without pointers, you need to invent your own with an Array or map. I went with an array, because lean is not supposed to copy it.  It still took nine seconds for part 2.  I had to work around lean having the flavor of mod that returns negative numbers too.
+
 ## Rust Notes
 
 - Editor tooling is nice:
