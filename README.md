@@ -69,6 +69,8 @@ Oof. So the 1651 vs 1650 thing, which I regressed, was having to keep the open a
 
 Got it down to 1:39 by replacing the string names with integers and bitmaps for the string lists.  And down to 1:10 by using UInt64. Switching to my Heap implementation made things much worse. I suspect the RBTree is collapsing duplicate state. But I learned some stuff while writing it and checked it in for posterity.
 
+Down to 500 ms after noticing that the open valves are not adjacent in the input.  Also tweaked day16p2 to run both part1/part2.
+
 **Day 17**
 
 Second part took me a little while. I settled on the race loop detection thing, but had a lot of debugging before I figured out that I wasn't taking the padding off the top when calculating the height. I also kept wedging the lean process. There isn't a nice way to kill it in the editor. 
