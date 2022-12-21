@@ -90,6 +90,10 @@ Day 20 was a linked list one. This can be a pain in a language without pointers,
 
 I ran RBMap just to see, 10.6 sec for my Array version, 1:33.34 for RBMap, and about 24s for HashMap.
 
+**Day 21**
+
+Day 21 was a nice match for a functional programming language.
+
 ## Rust Notes
 
 - Editor tooling is nice:
