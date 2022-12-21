@@ -158,11 +158,9 @@ def process (data : Data) (queue : Queue) (best : UInt64) :=
           else
             (myActions.map (λ a => (eActions.filterMap λ b => perform2 data st a b))).join
         let cand := cand.filter (λ c => State.est c > st.score)
-        if cand.isEmpty
-          then process data q (max best st.score)
-          else
-            let q := cand.foldl (λ q c => RBTree.insert q c) q
-            process data q (max best st.score)
+       
+        let q := cand.foldl (λ q c => RBTree.insert q c) q
+        process data q (max best st.score)
 
 def main (argv : List String) : IO Unit := do
   let fname := argv[0]!
