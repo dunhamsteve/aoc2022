@@ -67,6 +67,8 @@ The night of, I got a part 1 solution in lean, but the eg.txt was off by one. I 
 
 Oof. So the 1651 vs 1650 thing, which I regressed, was having to keep the open and step separate. I didn't get code that did both.  I barely got part2 working.  It's taking 3 min 22 seconds to run, after I compile it. I think I need a better estimation function, and maybe I can manage the size that state grows better. 
 
+Got it down to 1:39 by replacing the string names with integers and bitmaps for the string lists.
+
 **Day 17**
 
 Second part took me a little while. I settled on the race loop detection thing, but had a lot of debugging before I figured out that I wasn't taking the padding off the top when calculating the height. I also kept wedging the lean process. There isn't a nice way to kill it in the editor. 

@@ -6,7 +6,7 @@ EXES = $(OBJS:.c=.out)
 %.c: %.lean
 	lean -c $@ $<
 
-%: %.c
+%.out: %.c
 	leanc -o $@ $<
 
 all: $(EXES)

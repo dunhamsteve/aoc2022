@@ -1,23 +1,36 @@
 import Lean
-open Lean (HashMap RBTree RBMap)
+open Lean (HashMap RBTree)
 
 structure Node where
   name : String
+  index : Nat
   rate : Nat
-  out : List String
-deriving Repr, Inhabited
+  out : Nat
+deriving Repr, Inhabited, Ord
+
+def Node.isOut (n : Node) (ix : Nat) := n.out &&& (1 <<< ix) != 0
+def Node.mask (n : Node) := 1 <<< n.index
 
 def String.getNum (part : String) : Nat :=
   let a := part.dropWhile (λ c => not c.isDigit)
   let b := a.takeWhile (λc => c.isDigit)
   b.toNat!
 
-def parseLine (line : String) : Node :=
-  let parts := line.splitOn " "
-  let name := parts[1]!
-  let rate := parts[4]!.getNum
-  let out := (parts.drop 9).map λ s => s.takeWhile Char.isAlpha
-  {name,rate,out}
+def parseFile (content : String) : Array Node :=
+  let lines := (content.trim.splitOn "\n").map λ line => line.splitOn " "
+  let names := (lines.map λ xs => xs[1]!).toArray
+  let getIndex (s : String): Nat :=
+    let x : Option Nat := (names.indexOf? s); x.get!
+  let mkOut (ns : List String) : Nat :=
+    (ns.map getIndex).foldl (λ acc ix => (acc ||| (1 <<< ix))) 0
+  let pNode (pts : List String) : Node := {
+    name := pts[1]!,
+    index := getIndex pts[1]!,
+    rate := pts[4]!.getNum,
+    out := mkOut ((pts.drop 9).map λ s => s.takeWhile Char.isAlpha)
+  }
+  (lines.map pNode).toArray
+
 
 -- Need this for an Ord on State.
 def compareList [Ord α] : (List α) -> (List α) -> Ordering
@@ -28,19 +41,22 @@ def compareList [Ord α] : (List α) -> (List α) -> Ordering
 | [], _ => .lt
 | _, _ => .gt
 
-instance [Ord α] : Ord (List α) where
-  compare a b := compareList a b
-
 structure State where
   est : Nat -- total estimated score
   score : Nat
   time : Nat
   etime : Nat
-  loc : String
-  eloc : String
-  closed : List String
+  -- loc : Nat
+  -- eloc : Nat
+  closed : Nat
+  node : Node
+  enode : Node
 
 deriving Repr, Ord
+
+def State.isClosed (st : State) (ix : Nat) := 
+  let m := 1 <<< ix
+  st.closed &&& m == m
 
 -- our priority queue
 abbrev Queue := RBTree State compare
@@ -49,7 +65,7 @@ abbrev NodeMap := HashMap String Node
 
 structure Data where
   nodes : List Node
-  nodeMap : NodeMap
+  
 
 def estimate (data : Data) (st : State) : State :=
   -- trying to get a upper bound for remaining score, that is as tight as possible
@@ -59,21 +75,21 @@ def estimate (data : Data) (st : State) : State :=
   let rec loop : (List Node) -> Nat -> Nat -> Nat
   | [], _, _ => 0
   | (n :: ns), time, etime =>
-    if st.closed.contains n.name && n.name != st.loc && n.name != st.eloc then
+    if st.isClosed n.index && n.index != st.node.index && n.index != st.enode.index then
       if time >= etime then
         if time < 2 then 0 else n.rate * (time - 2) + loop ns (time - 2) etime
       else
         if etime < 2 then 0 else n.rate * (etime - 2) + loop ns time (etime - 2)
     else loop ns time etime
 
-  let (a,time) := if st.closed.contains st.loc 
+  let (a,time) := if st.isClosed st.node.index 
     then 
-      let n := data.nodeMap.find! st.loc
+      let n := st.node
       (n.rate * (st.time -1), st.time - 1)
     else (0,st.time)
-  let (b,etime) := if st.closed.contains st.eloc
+  let (b,etime) := if st.isClosed st.enode.index
     then
-      let n := data.nodeMap.find! st.eloc
+      let n := st.enode
       (n.rate * (st.etime - 1) , st.etime - 1)
     else (0,st.etime)
 
@@ -83,39 +99,39 @@ def estimate (data : Data) (st : State) : State :=
 -- make this work with the changes, then give each agent 
 -- separate times and only advance one at a time.
 
-def openValve (data : Data) (st : State) : Option State :=
-  if st.time > 0 && st.closed.contains st.loc then
-    let n := data.nodeMap.find! st.loc
-    let closed := st.closed.erase st.loc
+def openValve (st : State) : Option State :=
+  if st.time > 0 && st.isClosed st.node.index then
+    let n := st.node
+    let closed := st.closed ^^^ n.mask
     let time := st.time - 1
     let score := st.score + time * n.rate
     some $ { st with closed, time, score }
   else
     none
 
-def moveTo (data : Data) (st : State) (loc : String) : Option State :=
+def moveTo (st : State) (node : Node) : Option State :=
   if st.time > 0
-    then some $ { st with loc, time := st.time - 1}
+    then some $ { st with node, time := st.time - 1}
     else none
 
-def openEValve (data : Data) (st : State) : Option State :=
-  if st.etime > 0 && st.closed.contains st.eloc then
-    let n := data.nodeMap.find! st.eloc
-    let closed := st.closed.erase st.eloc
+def openEValve (st : State) : Option State :=
+  if st.etime > 0 && st.isClosed st.enode.index then
+    let n := st.enode
+    let closed := st.closed ^^^ n.mask
     let etime := st.etime - 1
     let score := st.score + etime * n.rate
     some $ { st with closed, etime, score }
   else
     none
 
-def moveETo (data : Data) (st : State) (eloc : String) : Option State :=
+def moveETo (st : State) (enode : Node) : Option State :=
     if st.etime > 0
-    then some $ { st with eloc, etime := st.etime - 1}
+    then some $ { st with enode, etime := st.etime - 1}
     else none
 
 inductive Action where
 | valve : Action
-| move : String -> Action
+| move : Node -> Action
 deriving Repr
 
 
@@ -123,11 +139,11 @@ def perform (data : Data) (st : State) (me : Action) (ele : Action) : Option Sta
   -- dbg_trace "perform {repr me} {repr ele} {st.time} {st.etime}" .none;
 
   let st <- match me with
-    | .valve => openValve data st
-    | .move n => moveTo data st n
+    | .valve => openValve st
+    | .move n => moveTo st n
   let st <- match ele with
-    | .valve => openEValve data st
-    | .move n => moveETo data st n
+    | .valve => openEValve st
+    | .move n => moveETo st n
   estimate data st
 
 partial
@@ -139,32 +155,18 @@ def process (data : Data) (queue : Queue) (best : Nat) :=
   | .none => dbg_trace "empty"; best
   | .some st =>
       let q := queue.erase st;
-      if st.est < best then dbg_trace (repr (st.est, best));best
-      -- else if st.closed.isEmpty || st.time < 1 then process data q (max best st.score)
+      if st.est <= best then best
       else
-        let n := data.nodeMap.find! st.loc
-        let n2 := data.nodeMap.find! st.eloc
-        let myActions : List Action := .valve :: n.out.map λ n => .move n
-        let eActions : List Action := .valve :: n2.out.map λ n => .move n
+        let n := st.node
+        let n2 := st.enode
+        
+        let getMoves (mask : Nat): List Action :=
+          (data.nodes.filter λ n => Node.mask n &&& mask != 0).map λ n => Action.move n
 
+        let myActions : List Action := .valve :: getMoves n.out
+        let eActions  : List Action := .valve :: getMoves n2.out
         let cand := (myActions.map (λ a => (eActions.filterMap λ b => perform data st a b))).join
-
-        -- -- dbg_trace (repr ("cand",myActions, eActions, cand))
-        -- -- let cand := []
-        -- let me := n.out.filterMap λ name => moveTo data st name
-        -- let me := match openValve data st with
-        -- | some st => st :: me
-        -- | none => me
-
-        -- let ele := n2.out.filterMap λ name => moveETo data st name
-        -- let ele := match openEValve data st with
-        -- | some st => st :: ele
-        -- | none => ele
-        
-        -- let cand := me.append ele
-
         let cand := cand.filter (λ c => State.est c > st.score)
-        
         if cand.isEmpty
           then process data q (max best st.score)
           else
@@ -174,16 +176,19 @@ def process (data : Data) (queue : Queue) (best : Nat) :=
 def main (argv : List String) : IO Unit := do
   let fname := argv[0]!
   let content <- IO.FS.readFile fname
-  let nodes  := ((content.trim.splitOn "\n").map parseLine).toArray.qsort (λ n m => n.rate > m.rate)
-  let nodeMap := nodes.foldl (λ m n => m.insert n.name n) .empty
-  let data : Data := { nodeMap, nodes := nodes.toList }
-  let closed := (nodes.filter (λn=>n.rate > 0)).toList.map λ n => n.name
-  println! closed
-  let start : State := { loc := "AA", eloc := "AA", time := 30, etime := 0, closed, score := 0, est := 0 }
-  let result := process data (RBTree.insert .empty start) 0
-  println! "{fname} part1 {result}"
+  let nodes  := parseFile content
+  let .some node := nodes.find? λ n => n.name == "AA" | println! "Can't find AA"
+  let enode := node
+  let data : Data := { nodes := (nodes.qsort (λ a b => a.rate > b.rate)).toList }
+  let closed := nodes.foldl (λ acc n => if n.rate > 0 then acc ||| n.mask else acc) 0
   
-  let start : State := { loc := "AA", eloc := "AA", time := 26, etime := 26, closed, score := 0, est := 0 }
+  -- Can't do both p1 and p2 for now.
+
+  -- let start : State := estimate data { time := 30, etime := 0, closed, score := 0, est := 0, node, enode }
+  -- let result := process data (RBTree.insert .empty start) 0
+  -- println! "{fname} part1 {result}"
+  
+  let start : State := estimate data { time := 26, etime := 26, closed, score := 0, est := 0, node, enode }
   let result := process data (RBTree.insert .empty start) 0
   println! "{fname} part2 {result}"
 #eval main ["day16/eg.txt"]
