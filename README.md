@@ -67,7 +67,7 @@ The night of, I got a part 1 solution in lean, but the eg.txt was off by one. I 
 
 Oof. So the 1651 vs 1650 thing, which I regressed, was having to keep the open and step separate. I didn't get code that did both.  I barely got part2 working.  It's taking 3 min 22 seconds to run, after I compile it. I think I need a better estimation function, and maybe I can manage the size that state grows better. 
 
-Got it down to 1:39 by replacing the string names with integers and bitmaps for the string lists.
+Got it down to 1:39 by replacing the string names with integers and bitmaps for the string lists.  And down to 1:10 by using UInt64. Switching to my Heap implementation made things much worse. I suspect the RBTree is collapsing duplicate state. But I learned some stuff while writing it and checked it in for posterity.
 
 **Day 17**
 

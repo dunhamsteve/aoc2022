@@ -3,29 +3,30 @@ open Lean (HashMap RBTree)
 
 structure Node where
   name : String
-  index : Nat
-  rate : Nat
-  out : Nat
+  index : UInt64
+  rate : UInt64
+  out : UInt64
 deriving Repr, Inhabited, Ord
 
-def Node.isOut (n : Node) (ix : Nat) := n.out &&& (1 <<< ix) != 0
-def Node.mask (n : Node) := 1 <<< n.index
+def Node.isOut (n : Node) (ix : UInt64) := n.out &&& (1 <<< ix) != 0
+def Node.mask (n : Node) : UInt64 := 1 <<< n.index
 
-def String.getNum (part : String) : Nat :=
+def String.getNum (part : String) : UInt64 :=
   let a := part.dropWhile (λ c => not c.isDigit)
   let b := a.takeWhile (λc => c.isDigit)
-  b.toNat!
+  b.toNat!.toUInt64
 
 def parseFile (content : String) : Array Node :=
   let lines := (content.trim.splitOn "\n").map λ line => line.splitOn " "
   let names := (lines.map λ xs => xs[1]!).toArray
-  let getIndex (s : String): Nat :=
+  let getIndex (s : String) :=
     let x : Option Nat := (names.indexOf? s); x.get!
-  let mkOut (ns : List String) : Nat :=
-    (ns.map getIndex).foldl (λ acc ix => (acc ||| (1 <<< ix))) 0
+  let mkOut (ns : List String) : UInt64 :=
+    let foo := (ns.map getIndex).foldl (λ acc ix => acc ||| (1 <<< (ix))) 0
+    foo.toUInt64
   let pNode (pts : List String) : Node := {
     name := pts[1]!,
-    index := getIndex pts[1]!,
+    index := (getIndex pts[1]!).toUInt64,
     rate := pts[4]!.getNum,
     out := mkOut ((pts.drop 9).map λ s => s.takeWhile Char.isAlpha)
   }
@@ -42,19 +43,19 @@ def compareList [Ord α] : (List α) -> (List α) -> Ordering
 | _, _ => .gt
 
 structure State where
-  est : Nat -- total estimated score
-  score : Nat
-  time : Nat
-  etime : Nat
+  est : UInt64 -- total estimated score
+  score : UInt64
+  time : UInt64
+  etime : UInt64
   -- loc : Nat
   -- eloc : Nat
-  closed : Nat
+  closed : UInt64
   node : Node
   enode : Node
 
 deriving Repr, Ord
 
-def State.isClosed (st : State) (ix : Nat) := 
+def State.isClosed (st : State) (ix : UInt64) := 
   let m := 1 <<< ix
   st.closed &&& m == m
 
@@ -72,7 +73,7 @@ def estimate (data : Data) (st : State) : State :=
   -- add best score for opening valves in time remaining
   -- we'll assume we want to close the local valve and then the others in order
   -- of size (assuming each is just one jump away)
-  let rec loop : (List Node) -> Nat -> Nat -> Nat
+  let rec loop : (List Node) -> UInt64 -> UInt64 -> UInt64
   | [], _, _ => 0
   | (n :: ns), time, etime =>
     if st.isClosed n.index && n.index != st.node.index && n.index != st.enode.index then
@@ -147,7 +148,7 @@ def perform (data : Data) (st : State) (me : Action) (ele : Action) : Option Sta
   estimate data st
 
 partial
-def process (data : Data) (queue : Queue) (best : Nat) :=
+def process (data : Data) (queue : Queue) (best : UInt64) :=
   -- when we hit an end, we pass along the best choice until our
   -- estimates are lower than our best
   match queue.max with
@@ -160,7 +161,7 @@ def process (data : Data) (queue : Queue) (best : Nat) :=
         let n := st.node
         let n2 := st.enode
         
-        let getMoves (mask : Nat): List Action :=
+        let getMoves (mask : UInt64): List Action :=
           (data.nodes.filter λ n => Node.mask n &&& mask != 0).map λ n => Action.move n
 
         let myActions : List Action := .valve :: getMoves n.out
