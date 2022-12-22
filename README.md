@@ -75,6 +75,8 @@ Down to 500 ms after noticing that the open valves are not adjacent in the input
 
 Second part took me a little while. I settled on the race loop detection thing, but had a lot of debugging before I figured out that I wasn't taking the padding off the top when calculating the height. I also kept wedging the lean process. There isn't a nice way to kill it in the editor. 
 
+On the rust side, I didn't explicitly pad but still had padding from the short rocks.  It's a vector, so the rocks were dropped on the end.
+
 **Day 18**
 
 This one was quite easy.  I "cheated" a little and hardwired the max size of the space to

@@ -13,7 +13,6 @@ structure State where
   pile : List UInt8
   wstep : Nat
   rstep : Nat
-  drop : Nat
 deriving Repr
 
 abbrev M α := StateM State α  
@@ -81,7 +80,6 @@ def dropRock : M Unit := do
   let st <- get
   set {st with pile }
 
-
 partial
 def same (as bs : List UInt8) (i : Nat) : Bool :=
   let rec loop : List UInt8 -> List UInt8 -> Nat -> Bool
@@ -135,7 +133,7 @@ def main (argv : List String) : IO Unit := do
   let content <- IO.FS.readFile fname
   -- array for modular lookup
   let winds := (content.trim.toList.map toDir).toArray
-  let start : State := {winds, wstep := 0, rstep := 0, drop := 0, pile := []}
+  let start : State := {winds, wstep := 0, rstep := 0, pile := []}
   
   let (_, st) := (tetris 2022).run start
   let part1 :=  getHeight st
