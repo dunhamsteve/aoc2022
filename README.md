@@ -98,6 +98,10 @@ I ran RBMap just to see, 10.6 sec for my Array version, 1:33.34 for RBMap, and a
 
 Day 21 was a nice match for a functional programming language.
 
+**Day 22**
+
+This one was an ordeal. My initial version of part1 had start/end for each row and column. I then wrote some code to handle the wrapping for part 2 `eg.txt`, only to find that `input.txt` was a completely different shape. I should have just hacked together a version that worked for the input shape, but instead I wrote the code to figure how how stuff maps to the cube and does all of the rotation / translation as necessary. There are a few partials and ! in the lean version that I think are within my capability to handle, but I'll move on to Day 23 for now.
+
 ## Rust Notes
 
 - Editor tooling is nice:
@@ -128,6 +132,7 @@ Day 21 was a nice match for a functional programming language.
 - BUG - If I try to complete IO.F, I get IO.IO.FS
 - Like Idris, it is hard to google.  Searching for Idris2 helps, so I've been trying "lean4".
 - How do I define something like `notation "‖ " a " ‖" => Int.abs a` that doesn't assume it's nesting when it hits the second deliminator.
+- If I use an unknown type name (e.g. `Position` instead of `Pos`), I end up with weird universe level errors instead of unknown name.
 
 I had a question on this:
 ```lean
