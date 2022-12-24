@@ -102,6 +102,16 @@ Day 21 was a nice match for a functional programming language.
 
 This one was an ordeal. My initial version of part1 had start/end for each row and column. I then wrote some code to handle the wrapping for part 2 `eg.txt`, only to find that `input.txt` was a completely different shape. I should have just hacked together a version that worked for the input shape, but instead I wrote the code to figure how how stuff maps to the cube and does all of the rotation / translation as necessary. There are a few partials and ! in the lean version that I think are within my capability to handle, but I'll move on to Day 23 for now.
 
+**Day 23**
+
+This works.  Wasn't too bad in lean, but takes a little while (31s).  The data was sparse and coordinates keep getting bigger, so I used an RBMap. I might have been able to use an oversized vector.
+
+**Day 24**
+
+This one wasn't too bad. I started out with an search thing, and then decided it was easy enough to just step the grid through time and marking every possible position for the elves. I'm tempted to retry with just the elves and not update the wind.  (Or I could poke around with dimensions nd proofs.)
+
+Ok, for fun I skipped updating the map and kept a RBTree of elves, and it was slower.
+
 ## Rust Notes
 
 - Editor tooling is nice:
