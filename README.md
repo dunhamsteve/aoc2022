@@ -112,6 +112,10 @@ This one wasn't too bad. I started out with an search thing, and then decided it
 
 Ok, for fun I skipped updating the map and kept a RBTree of elves, and it was slower.
 
+**Day 25**
+
+An easy one, kinda reminded me of negabinary, but I didn't bother looking up the details of that. Code was a little imperative, but I'll save trying other approaches for another day.
+
 ## Rust Notes
 
 - Editor tooling is nice:
