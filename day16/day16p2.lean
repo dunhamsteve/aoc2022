@@ -59,8 +59,10 @@ structure Data where
 def estimate (data : Data) (st : State) : State :=
   -- trying to get a upper bound for remaining score, that is as tight as possible
   -- add best score for opening valves in time remaining
-  -- we'll assume we want to close the local valve for free and then the others in order
+  -- we'll assume we want to open the local valve for free and then the others in order
   -- of size (assuming each is minimal distance away)
+  -- First open of the local valve costs 2, each subsequent one costs the
+  -- min distance between closed valves in the graph (`data.skip`)
   let rec loop (skip : UInt64) (eskip : UInt64) (time : UInt64) (etime : UInt64) : (List Node) -> UInt64
   | [] => 0
   | (n :: ns) =>
@@ -69,7 +71,7 @@ def estimate (data : Data) (st : State) : State :=
         let time := time - skip
         n.rate * time + loop data.skip eskip time etime ns
       else if etime >= eskip then
-        let etime := etime - skip
+        let etime := etime - eskip
         n.rate * etime + loop skip data.skip time etime ns
       else 0
     else loop skip eskip time etime ns
