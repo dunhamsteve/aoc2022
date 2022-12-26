@@ -1,7 +1,8 @@
 import Lean
 import Init.Data.Array
 import Lean.Data.PersistentHashMap
-namespace Lean
+
+open Lean (PersistentHashMap)
 
 def process : List String -> List (List String) -> List (List String ×  Int )
 | _, [] => []
@@ -19,7 +20,7 @@ def update (tree : DTree) (size : Int) : (stuff : List String) -> DTree
 | [] => tree
 | (_ :: ns) => update (tree.insert ns (tree.findD ns 0 + size)) size ns
   
-def main(args: List String) : IO Unit := do
+def main (args: List String) : IO Unit := do
   let fname := args.head!
   let content <- IO.FS.readFile fname
   let lines := (content.splitOn "\n").map (fun line => line.splitOn " ")
