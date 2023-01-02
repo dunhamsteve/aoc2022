@@ -6,18 +6,21 @@ deriving Repr
 
 private
 def sink (a : Array α) (lt : α -> α -> Bool) (ix : Nat): Array α :=
-  if ix == 0 then a else
-  -- dunno how to show this
-  have : ix/2 < ix := sorry
-  if h : ix < a.size then
-    have : ix/2 < a.size := Nat.lt_trans this h
-    if lt a[ix/2] a[ix] then
-      let x := a[ix]
-      let a := (a.setD ix a[ix/2]).setD (ix/2) x
-      sink a lt (ix/2)
+  if h : 0 < ix then
+    -- I thought it'd be able to search for this stuff.
+    have : ix / 2 < ix := Nat.div_lt_self h (1).lt_succ_self
+    if h : ix < a.size then
+      have : ix/2 < a.size := Nat.lt_trans this h
+      if lt a[ix/2] a[ix] then
+        let x := a[ix]
+        let a := (a.setD ix a[ix/2]).setD (ix/2) x
+        sink a lt (ix/2)
+      -- is there an elegant way to not have all of these?
+      -- I couldn't and the if's up there because I needed dependent if
+      else a
     else a
   else a
-
+  
 def Heap.insert (h : Heap α lt) (a : α) : Heap α lt where
   -- this is subtle and I had to look at heapSort.lean
   -- having a h.data.size at the end held onto the h durning the h.data.push
@@ -36,7 +39,7 @@ def bubble (arr : Array α) (lt : α -> α -> Bool) (ix : Nat) : Array α :=
     let a := arr[ix]
     if h : k < arr.size then
       -- is there a better way to write this?
-      have : j < arr.size := Nat.lt_trans (Nat.lt_succ_self (2*ix)) h
+      have : j < arr.size := Nat.lt_trans (2*ix).lt_succ_self h
       let b := arr[j]
       let c := arr[k]
       if lt b c && lt a c then
@@ -55,12 +58,13 @@ def bubble (arr : Array α) (lt : α -> α -> Bool) (ix : Nat) : Array α :=
   else arr
 -- termination_by _ arr ix => arr.size - ix
 
--- TODO sorry
 private
 def popAux (arr : Array α) (lt : α -> α -> Bool) : Array α :=
-  if h : arr.size > 1 then
-    have : arr.size - 1 < arr.size := sorry
-    bubble (arr.set! 0 arr[arr.size-1]).pop lt 0
+  if h : 1 < arr.size then
+    let last := arr.size - 1
+    have hzero_lt_sz : 0 < arr.size := Nat.lt_trans Nat.zero_lt_one h
+    have : last < arr.size := Nat.sub_lt hzero_lt_sz Nat.zero_lt_one
+    bubble (arr.set ⟨ 0, hzero_lt_sz ⟩  arr[last]).pop lt 0
   else if arr.size == 1 then arr.pop
   else arr
 
