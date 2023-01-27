@@ -2,6 +2,9 @@
 This file contains an exercise, implement a max heap in lean. It uses a zero-based
 array, which makes some of the math (and proofs) trickier. But I think I've managed
 to get it right and prove termination + indices.
+
+TODO 
+  - How hard is it to prove that it maintains the heap property?
 -/
 
 structure Heap (α) (lt : α -> α -> Bool) where
@@ -9,19 +12,21 @@ structure Heap (α) (lt : α -> α -> Bool) where
 deriving Repr
 
 private
-def sink (a : Array α) (lt : α -> α -> Bool) (ix : Nat): Array α :=
+def sink (a : Array α) (lt : α -> α -> Bool) (ix : Nat) : Array α :=
   if h : 0 < ix then
     let ix' := (ix - 1)/2
     have : ix' < ix := by
       cases h1 : ix - 1
-      . apply Nat.lt_of_le_of_lt (Nat.div_le_self (ix - 1) 2)
+      . apply Nat.lt_of_le_of_lt 
+        apply Nat.div_le_self
         rw [h1]
         assumption
-      . apply Nat.lt_of_lt_of_le (Nat.div_lt_self _ (1).lt_succ_self)
-        apply Nat.sub_le
+      . apply Nat.lt_of_lt_of_le 
+        apply Nat.div_lt_self
         rw [h1]
         apply Nat.zero_lt_succ
-
+        apply Nat.lt_succ_self
+        apply Nat.sub_le
     if h : ix < a.size then
       have : ix' < a.size := Nat.lt_trans this h
       if lt a[ix'] a[ix] then
@@ -60,26 +65,38 @@ def bubble (arr : Array α) (lt : α -> α -> Bool) (ix : Nat) : Array α :=
         let c := arr[k]
         if lt b c && lt a c then -- bubble k side          
           have : arr.size - k < arr.size - ix := by 
-            apply Nat.lt_trans (Nat.sub_succ_lt_self arr.size (2*ix+1) h2)
-            apply Nat.lt_of_lt_of_le (Nat.sub_succ_lt_self arr.size (2*ix) h3)
-            exact ha
+            apply Nat.lt_trans
+            apply Nat.sub_succ_lt_self
+            assumption
+            apply Nat.lt_of_lt_of_le
+            apply Nat.sub_succ_lt_self
+            repeat assumption
+            -- apply Nat.lt_trans (Nat.sub_succ_lt_self arr.size (2*ix+1) h2)
+            -- apply Nat.lt_of_lt_of_le (Nat.sub_succ_lt_self arr.size (2*ix) h3)
+            -- exact ha
 
           go ((arr.set ⟨k,h⟩ a).set ⟨ix, by simp [h1]⟩ c) k
         else if lt a b then
           have : arr.size - j < arr.size - ix := by 
-            apply Nat.lt_of_lt_of_le (Nat.sub_succ_lt_self arr.size (2*ix) h3)
-            exact ha
+            apply Nat.lt_of_lt_of_le
+            apply Nat.sub_succ_lt_self
+            repeat assumption
+            -- apply Nat.lt_of_lt_of_le (Nat.sub_succ_lt_self arr.size (2*ix) h3)
+            -- exact ha
           go ((arr.set ⟨ j, h2 ⟩  a).set ⟨ ix, by simp [h1] ⟩ b) j
         else
           arr
       else if h : j < arr.size then
         let b := arr[j]
         if lt a b then
-            have : arr.size - j < arr.size - ix := by 
-              have h3 : 2*ix < arr.size := Nat.lt_trans (2*ix).lt_succ_self h
-              apply Nat.lt_of_lt_of_le (Nat.sub_succ_lt_self arr.size (2*ix) h3)
-              exact ha
-
+            have : arr.size - j < arr.size - ix := by
+              --have h3 : 2*ix < arr.size := Nat.lt_trans (2*ix).lt_succ_self h
+              --apply Nat.lt_of_lt_of_le (Nat.sub_succ_lt_self arr.size (2*ix) h3)
+              apply Nat.lt_of_lt_of_le
+              apply Nat.sub_succ_lt_self
+              apply Nat.lt_trans
+              apply Nat.lt_succ_self
+              repeat assumption
             go ((arr.set ⟨ j, h ⟩  a).set ⟨ ix, by simp [h1] ⟩  b) j
         else arr
       else arr
