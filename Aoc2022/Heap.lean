@@ -13,7 +13,8 @@ deriving Repr
 
 private
 def sink (a : Array α) (lt : α -> α -> Bool) (ix : Nat) : Array α :=
-  if h : 0 < ix then
+  if h : 0 < ix ∧ ix < a.size then
+    let ⟨h, h1⟩ := h
     let ix' := (ix - 1)/2
     have : ix' < ix := by
       cases h1 : ix - 1
@@ -27,17 +28,14 @@ def sink (a : Array α) (lt : α -> α -> Bool) (ix : Nat) : Array α :=
         apply Nat.zero_lt_succ
         apply Nat.lt_succ_self
         apply Nat.sub_le
-    if h : ix < a.size then
-      have : ix' < a.size := Nat.lt_trans this h
-      if lt a[ix'] a[ix] then
-        let x := a[ix]
-        let a := (a.set ⟨ ix, h ⟩  a[ix']).set ⟨ ix', by simp [this] ⟩ x
-        sink a lt ix'
-      -- is there an elegant way to not have all of these elses?
-      -- I couldn't and the if's up there because I needed dependent if
-      else a
+    have : ix' < a.size := Nat.lt_trans this h1
+    if lt a[ix'] a[ix] then
+      let x := a[ix]
+      let a := (a.set ⟨ ix, h1 ⟩  a[ix']).set ⟨ ix', by simp [this] ⟩ x
+      sink a lt ix'
     else a
   else a
+
   
 def Heap.insert (h : Heap α lt) (a : α) : Heap α lt where
   -- this is subtle and I had to look at heapSort.lean
@@ -71,18 +69,12 @@ def bubble (arr : Array α) (lt : α -> α -> Bool) (ix : Nat) : Array α :=
             apply Nat.lt_of_lt_of_le
             apply Nat.sub_succ_lt_self
             repeat assumption
-            -- apply Nat.lt_trans (Nat.sub_succ_lt_self arr.size (2*ix+1) h2)
-            -- apply Nat.lt_of_lt_of_le (Nat.sub_succ_lt_self arr.size (2*ix) h3)
-            -- exact ha
-
           go ((arr.set ⟨k,h⟩ a).set ⟨ix, by simp [h1]⟩ c) k
         else if lt a b then
           have : arr.size - j < arr.size - ix := by 
             apply Nat.lt_of_lt_of_le
             apply Nat.sub_succ_lt_self
             repeat assumption
-            -- apply Nat.lt_of_lt_of_le (Nat.sub_succ_lt_self arr.size (2*ix) h3)
-            -- exact ha
           go ((arr.set ⟨ j, h2 ⟩  a).set ⟨ ix, by simp [h1] ⟩ b) j
         else
           arr
@@ -90,8 +82,6 @@ def bubble (arr : Array α) (lt : α -> α -> Bool) (ix : Nat) : Array α :=
         let b := arr[j]
         if lt a b then
             have : arr.size - j < arr.size - ix := by
-              --have h3 : 2*ix < arr.size := Nat.lt_trans (2*ix).lt_succ_self h
-              --apply Nat.lt_of_lt_of_le (Nat.sub_succ_lt_self arr.size (2*ix) h3)
               apply Nat.lt_of_lt_of_le
               apply Nat.sub_succ_lt_self
               apply Nat.lt_trans
@@ -103,7 +93,6 @@ def bubble (arr : Array α) (lt : α -> α -> Bool) (ix : Nat) : Array α :=
     else arr
   go arr ix
 termination_by go arr ix => arr.size - ix
-
 
 private
 def popAux (arr : Array α) (lt : α -> α -> Bool) : Array α :=
